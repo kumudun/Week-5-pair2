@@ -13,15 +13,20 @@ const getAllJobs = async (req, res) => {
 
 // POST /jobs
 const createJob = async (req, res) => {
-  // console.log(req.body );
-
   try {
-    const newJob = await Job.create({ ...req.body });
+    const cleanedData = Object.fromEntries(
+      Object.entries(req.body).map(([key, value]) => [
+        key,
+        value === "" ? undefined : value,
+      ])
+    );
+
+    const newJob = await Job.create(cleanedData);
     res.status(201).json(newJob);
   } catch (error) {
     res
       .status(400)
-      .json({ message: "Failed to create job--", error: error.message });
+      .json({ message: "Failed to create job", error: error.message });
   }
 };
 

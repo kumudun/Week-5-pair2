@@ -22,22 +22,22 @@ const AddJobPage = () => {
     setIsSubmitting(true);
 
     const newJob = {
-      title,
+      title: title.trim(),
       type,
-      location,
-      description,
-      salary: Number(salary),
-      companyName,
-      contactEmail,
-      contactPhone,
+      description: description.trim(),
+      location: location.trim(),
+      salary: salary ? Number(salary) : undefined,
+      company: {
+        name: companyName.trim(),
+        contactEmail: contactEmail.trim(),
+        contactPhone: contactPhone.trim(),
+      },
     };
 
     try {
       const res = await fetch("http://localhost:4000/api/jobs", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newJob),
       });
 

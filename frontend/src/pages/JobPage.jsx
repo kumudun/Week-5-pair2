@@ -4,7 +4,27 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 const JobPage = () => {
   const { id } = useParams();
   const [job, setJob] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        const res = await fetch(`http://localhost:4000/api/jobs/${id}`);
+        if (!res.ok) {
+          throw new Error("Failed to fetch job");
+        }
+        const data = await res.json();
+        setJob(data);
+        setIsLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setIsLoading(false);
+      }
+    };
+    fetchJob();
+  }, [id]);
 
   const deleteJob = async () => {
     console.log(JobPage);
