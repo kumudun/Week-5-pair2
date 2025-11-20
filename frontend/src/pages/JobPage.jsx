@@ -10,6 +10,9 @@ const JobPage = () => {
 
   useEffect(() => {
     const fetchJob = async () => {
+      setIsLoading(true);
+      setError(null);
+
       try {
         const res = await fetch(`http://localhost:4000/api/jobs/${id}`);
         if (!res.ok) {
@@ -17,32 +20,55 @@ const JobPage = () => {
         }
         const data = await res.json();
         setJob(data);
-        setIsLoading(false);
       } catch (error) {
-        setError(error.message);
+        setError(error.message || "Something went wrong");
+      } finally {
         setIsLoading(false);
       }
     };
+
     fetchJob();
   }, [id]);
 
   const deleteJob = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this job?"
+    );
+    if (!confirmed) return;
+
     try {
       const res = await fetch(`http://localhost:4000/api/jobs/${id}`, {
         method: "DELETE",
       });
+
       if (!res.ok) {
         throw new Error("Failed to delete job");
       }
+
+      // Optional: clear local state (not strictly needed if we navigate)
+      setJob(null);
+
+      // Navigate away so the deleted job isn't visible anymore.
+      // Adjust this path to your jobs list route (e.g. "/jobs" or "/").
       navigate("/");
     } catch (error) {
-      setError(error.message);
-      setIsLoading(false);
+      console.error(error);
+      setError(error.message || "Failed to delete job");
     }
   };
 
-  if (!job) {
+  // ---------- Render states ----------
+  if (isLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div style={{ color: "red" }}>Error: {error}</div>;
+  }
+
+  if (!job) {
+    // This might happen if the job doesn't exist or was just deleted
+    return <div>Job not found.</div>;
   }
 
   return (
@@ -56,10 +82,14 @@ const JobPage = () => {
       <p>Location: {job.location}</p>
       <p>Salary: {job.salary}</p>
       <p>Posted Date: {job.postedDate}</p>
+
       <Link to={`/edit-job/${id}`}>
         <button>Edit Job</button>
       </Link>
-      <button onClick={deleteJob}>Delete Job</button>
+
+      <button onClick={deleteJob} style={{ marginLeft: "1rem" }}>
+        Delete Job
+      </button>
     </div>
   );
 };
