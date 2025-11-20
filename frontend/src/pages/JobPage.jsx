@@ -50,7 +50,7 @@ const JobPage = () => {
 
       // Navigate away so the deleted job isn't visible anymore.
       // Adjust this path to your jobs list route (e.g. "/jobs" or "/").
-      navigate("/"); 
+      navigate("/");
     } catch (error) {
       console.error(error);
       setError(error.message || "Failed to delete job");
